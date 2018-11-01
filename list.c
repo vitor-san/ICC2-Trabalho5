@@ -9,7 +9,7 @@ struct list {
 };
 
 
-List newList () {
+List newList() {
 	List new = malloc(sizeof(LIST));
 	new->beg = NULL;
 	new->end = NULL;
@@ -17,30 +17,11 @@ List newList () {
 	return new;
 }
 
-void listInsert(List x, elem data) {
-
-	if (listIsEmpty(x)) {
-		x->beg = newNode();
-		x->end = x->beg;
-	}
-
-	else {
-		Node aux = newNode();
-		setNext(x->end, aux);
-		x->end = aux;
-	}
-
-	setInfo(x->end, data);
-	x->size++;
-
-	return;
-}
-
 Node findNode(List x, int pos) {
 	Node aux;
 
-	if (pos > nElemsList(x) || pos < 0) return NULL;
-	else if (pos == 0) pos = 1;
+	if (pos > nElemsList(x)) pos = nElemsList(x);
+	else if (pos <= 0) pos = 1;
 
 	int center = nElemsList(x)/2;
 
@@ -65,12 +46,50 @@ Node findNode(List x, int pos) {
 	return aux;
 }
 
+void listInsert(List x, elem data, int pos) {
+
+	if (listIsEmpty(x)) {
+		x->beg = newNode();
+		x->end = x->beg;
+		setInfo(x->beg, data);
+	}
+
+	else {
+		
+		Node new = newNode();
+		setInfo(new, data);
+		Node next = findNode(x, pos);
+		
+		if (pos > nElemsList(x)) {
+			setNext(x->end, new);
+			setPrev(new, x->end);
+			x->end = new;
+		}
+		
+		else if (pos > 1) {
+			setPrev(new, getPrev(next));
+			setNext(getPrev(next), new);
+			setPrev(next, new);
+			setNext(new, next);
+		}
+		
+		else {
+			setNext(new, x->beg);
+			setPrev(x->beg, new);
+			x->beg = new;
+		}
+	}
+
+	x->size++;
+
+	return;
+}
+
 elem listRemove(List x, int pos) {
 
 	if (listIsEmpty(x)) return NULL;
 
 	Node theOne = findNode(x, pos);
-	if (theOne == NULL) return NULL;	//error - not on list
 	Node prevOne = getPrev(theOne);
 	Node nextOne = getNext(theOne);
 

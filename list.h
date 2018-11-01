@@ -6,7 +6,7 @@
 	typedef LIST* List;
 
 	List newList();		//the list will be 1-based
-	void listInsert(List x, elem data);		//elem data is always an ADDRESS
+	void listInsert(List x, elem data, int pos);		//elem data is always an ADDRESS
 	elem listRemove(List x, int pos);
 	elem listElem(List x, int pos);
 	int nElemsList(List x);

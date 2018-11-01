@@ -49,6 +49,7 @@ int main (void) {
 		}
 	} while (opt != 5);
 	
+	delList(abas);
 	return 0;
 }
 
@@ -62,16 +63,16 @@ void abrir(List lista) {
 	scanf("%d %d ", novaAba->data, novaAba->data+1);
 	scanf("%d %d  ", novaAba->hora, novaAba->hora+1);
 	
-	listInsert(lista, novaAba);
+	listInsert(lista, novaAba, nElemsList(lista)+1);	//só insere no final
 	
 	return;
 }
 
 void alterar(List lista) {
 	
-	char *chave;
+	char *chave = malloc(31*sizeof(char));
 	int novaPos;
-	Aba *temp;
+	Aba *abaTemp;
 	int achou = 0;
 	int i = 1;
 	
@@ -80,18 +81,25 @@ void alterar(List lista) {
 	
 	scanf("%d ", &novaPos);
 	
-	while (!achou && i <= nElemsList) {
-		abaAtual = listElem(lista, i);
-		if (!strcmp()) {	//se os titulos sao iguais, entao...
+	while (!achou && i <= nElemsList(lista)) {
+		abaTemp = listElem(lista, i);
+		
+		if (!strcmp(abaTemp->titulo, chave)) {	//se os titulos sao iguais, entao...
 			achou = 1;
-			
-		} 
+			abaTemp = listRemove(lista, i);
+			listInsert(lista, abaTemp, novaPos);
+		}
+		i++;
 	}
 	
+	free(chave);
 	return;
 }
 
 void ordenar(List lista) {
+	
+	
+	
 	return;
 }
 
@@ -109,5 +117,14 @@ void exibir(List lista) {
 }
 
 void sair(List lista) {
+	
+	Aba *aux;
+	int i = 1;
+	
+	while (!listIsEmpty(lista)) {
+		aux = listRemove(lista, i++);
+		free(aux);
+	}
+	
 	return;
 }
