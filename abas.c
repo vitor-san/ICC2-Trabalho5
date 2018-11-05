@@ -1,3 +1,14 @@
+/* Trabalho 5 de Introdução à Ciência
+ * de Computação II, curso ministrado
+ * pelo Professor Dr. Moacir A. Ponti.
+ * 
+ * Autor do codigo: Vitor Santana Cordeiro
+ * Nº USP: 10734345
+ * 
+ * Segundo Semestre de 2018
+ * ICMC, USP - São Carlos
+*/ 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +25,11 @@ typedef struct {
 void abrir(List lista);
 void alterar(List lista);
 void ordenar(List lista);
+int getMes(Aba x);
+int getDia(Aba x);
+int getHora(Aba x);
+int getMinutos(Aba x);
+void bucketSort(List lista, int (*criterio)(Aba x), int min, int max);
 void exibir(List lista);
 void sair(List lista);
 
@@ -58,7 +74,7 @@ void abrir(List lista) {
 	Aba *novaAba = malloc(sizeof(Aba));
 	
 	fgets(novaAba->titulo, 31, stdin);
-	novaAba->titulo[strlen(novaAba->titulo)-1] = '\0';
+	novaAba->titulo[strlen(novaAba->titulo)-1] = '\0';	//substitui o "\n" (pego pelo fgets) no final da String por um "\0". Usei fgets aqui porque o nome pode ter espacos, o que nao me permite usar o scanf %s
 	scanf("%s ", novaAba->url);
 	scanf("%d %d ", novaAba->data, novaAba->data+1);
 	scanf("%d %d  ", novaAba->hora, novaAba->hora+1);
@@ -87,7 +103,7 @@ void alterar(List lista) {
 		if (!strcmp(abaTemp->titulo, chave)) {	//se os titulos sao iguais, entao...
 			achou = 1;
 			abaTemp = listRemove(lista, i);
-			listInsert(lista, abaTemp, novaPos);
+			listInsert(lista, abaTemp, novaPos);	//retira da posicao antiga e coloca na posicao nova
 		}
 		i++;
 	}
@@ -96,9 +112,68 @@ void alterar(List lista) {
 	return;
 }
 
+int getMes(Aba x) {
+	return x.data[1];
+}
+
+int getDia(Aba x) {
+	return x.data[0];
+}
+
+int getHora(Aba x) {
+	return x.hora[0];
+}
+
+int getMinutos(Aba x) {
+	return x.hora[1];
+}
+
 void ordenar(List lista) {
+
+	bucketSort(lista, getMinutos, 0, 59);
+	bucketSort(lista, getHora, 0, 23);
+	bucketSort(lista, getDia, 1, 31);
+	bucketSort(lista, getMes, 1, 12);
 	
+	return;
+}
+
+void bucketSort(List lista, int (*criterio)(Aba x), int min, int max) {
 	
+	int tamVetor = max-min+1;
+	int posNoVetor;
+	int tamListaOriginal = nElemsList(lista);
+	Aba *abaAtual;
+	
+	List *vetorDeListas = malloc(sizeof(List)*(tamVetor));
+	
+	for (int i = 0; i < tamVetor; i++) {	//inicializa as listas de cada posicao do vetor
+		vetorDeListas[i] = newList();
+	}
+	
+	for (int i = 1; i <= tamListaOriginal; i++) {
+		abaAtual = (Aba *)listRemove(lista, 1);
+		posNoVetor = criterio(*abaAtual) - min;
+		
+		listInsert(vetorDeListas[posNoVetor], abaAtual, nElemsList(vetorDeListas[posNoVetor]) + 1);		//vai sempre inserir no final da Lista (como se fosse uma fila)
+	}
+	
+	for (int i = 0; i < tamVetor; i++) {	//remonta a fila original, agora ordenada
+		if (listIsEmpty(vetorDeListas[i])) {
+			delList(vetorDeListas[i]);
+			continue;
+		}
+		
+		while (!listIsEmpty(vetorDeListas[i])) {
+			
+			abaAtual = (Aba *)listRemove(vetorDeListas[i], 1);
+			listInsert(lista, abaAtual, nElemsList(lista) + 1);
+		}
+		
+		delList(vetorDeListas[i]);
+	}
+	
+	free(vetorDeListas);
 	
 	return;
 }
